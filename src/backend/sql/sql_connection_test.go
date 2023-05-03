@@ -1,38 +1,68 @@
 package sql_connection
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	"os"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func TestHistoryTable(t *testing.T) {
-	data_source := "fill in data source here"
+func TestTable(t *testing.T) {
+	data_source := "data source here"
 	db, err := sql.Open("mysql", data_source)
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	create_history_table(db)
-	create_questions_table(db)
+	ctx := context.Background()
+	conn, err := db.Conn(ctx)
 
-	create_history(db, "apa", "itu")
-	create_question(db, "apa", "itu")
+	if err != nil {
+		panic(err.Error())
+	}
 
-	if read_history(db, "apa") != "itu" {
+	Create_Database(conn, ctx)
+
+	Create_History(conn, ctx, "apa", "itu")
+	Create_Question(conn, ctx, "apa", "itu")
+
+	if Read_History(conn, ctx, "apa") != "itu" {
 		t.Error("read_history() failed")
 	}
 
-	update_question(db, "apa", "itu apa")
+	Update_Question(conn, ctx, "apa", "itu apa")
 
-	if read_question(db, "apa") != "itu apa" {
+	if Read_Question(conn, ctx, "apa") != "itu apa" {
 		t.Error("read_question() failed")
 	}
 
-	delete_history(db, "apa")
-	delete_question(db, "apa")
+	Delete_History(conn, ctx, "apa")
+	Delete_Question(conn, ctx, "apa")
 
 	defer db.Close()
+}
+
+func TestFile(t *testing.T) {
+	filename := "stima.sql"
+
+	fileInfo, err := os.Stat(filename)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if fileInfo.Size() == 0 {
+		t.Error("File is empty")
+	}
+
+	fmt.Println(fileInfo.Size())
+	fmt.Println(fileInfo.Name())
+	fmt.Println(fileInfo.IsDir())
+	fmt.Println(fileInfo.ModTime())
+	fmt.Println(fileInfo.Mode())
+	fmt.Println(fileInfo.Sys())
 }
