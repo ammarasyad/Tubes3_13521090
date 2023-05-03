@@ -8,7 +8,7 @@
 Tugas besar ketiga IF2211 - Strategi Algoritma adalah penerapan algoritma String Matching dan Regular Expression dalam pembuatan ChatGPT (chat bot) sederhana.
 
 ## Struktur Folder
-1. `src` berisi source code dari tugas besar dalam bahasa pemrograman JavaScript.
+1. `src` berisi source code dari tugas besar 3.
 2. `doc` berisi laporan tugas besar 3.
 
 ## Program Environment
