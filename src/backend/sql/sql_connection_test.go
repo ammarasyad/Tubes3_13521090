@@ -8,7 +8,8 @@ import (
 )
 
 func TestHistoryTable(t *testing.T) {
-	db, err := sql.Open("mysql", "root:Archr181003.@/stima")
+	data_source := "fill in data source here"
+	db, err := sql.Open("mysql", data_source)
 
 	if err != nil {
 		panic(err.Error())
