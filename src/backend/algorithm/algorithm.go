@@ -9,6 +9,10 @@ import (
 	sql_connection "src/backend/src/backend/sql"
 )
 
+func main() {
+	println(infixToPostFix("1+2-3"))
+}
+
 func KMP(text string, pattern string) bool {
 	fail := computeBorder(pattern)
 	i := 0
@@ -156,18 +160,18 @@ func infixToPostFix(expression string) string {
 	for i < len(expression) {
 		s := string(expression[i])
 	L1:
-		if s == "*" || s == "-" || s == "*" || s == "/" || s == "^" || s == "(" || s == ")" {
+		if s == "+" || s == "-" || s == "*" || s == "/" || s == "^" || s == "(" || s == ")" {
 			if operator.Len() == 0 {
-				operator.Push(string(s))
+				operator.Push(s)
 			} else {
 				if s == "(" {
 					operator.Push(s)
 				} else if s == ")" {
-					for operator.Len() != 0 && operator.At(operator.Len()-1) != "(" {
-						ret += string(operator.At(operator.Len() - 1))
+					for operator.Len() > 0 && operator.At(operator.Len()-1) != "(" {
+						ret += operator.At(operator.Len() - 1)
 						operator.Pop()
 					}
-					if operator.Len() != 0 && operator.At(operator.Len()-1) == "(" {
+					if operator.Len() > 0 && operator.At(operator.Len()-1) == "(" {
 						operator.Pop()
 					}
 				} else if getPrecedence(operator.At(operator.Len()-1)) < getPrecedence(s) {
@@ -187,25 +191,23 @@ func infixToPostFix(expression string) string {
 				ret += s
 			}
 		}
+		i++
+	}
+	for operator.Len() > 0 {
+		ret += operator.At(operator.Len() - 1)
+		operator.Pop()
 	}
 	return ret
 }
 
 func getPrecedence(ops string) int {
-	switch ops {
-	case "+":
-	case "-":
+	if ops == "-" || ops == "+" {
 		return 1
-		break
-	case "*":
-	case "/":
+	} else if ops == "*" || ops == "/" {
 		return 2
-		break
-	case "^":
+	} else if ops == "^" {
 		return 3
-		break
-	default:
+	} else {
 		return 0
 	}
-	return 0
 }
