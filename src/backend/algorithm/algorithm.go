@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	vector "github.com/niemeyer/golang/src/pkg/container/vector"
 	"math"
+	"regexp"
+	sql_connection "src/backend/src/backend/sql"
 )
 
 func KMP(text string, pattern string) bool {
@@ -106,4 +111,101 @@ func levenshteinDistance(text string, pattern string) int {
 		}
 	}
 	return d[len(text)][len(pattern)]
+}
+
+func ProcessQuestion(question string) string {
+	addQuestionRegex := regexp.MustCompile("[Tt]ambahkan pertanyaan [a-z,A-Z,0-9]* dengan jawaban [a-z,A-Z,0-9]*")
+	deleteQuestionRegex := regexp.MustCompile("[Hh]apus pertanyaan [a-z,A-Z,0-9]*")
+	calendarRegex := regexp.MustCompile("[0-9]{2}/[0-9]{2}/[0-9]{4}")
+	calculatorRegex := regexp.MustCompile("[Hh]itung ")
+	answer := ""
+	if addQuestionRegex.MatchString(question) {
+
+	} else if deleteQuestionRegex.MatchString(question) {
+
+	} else if calendarRegex.MatchString(question) {
+
+	} else if calculatorRegex.MatchString(question) {
+
+	}
+	return answer
+}
+
+func addQuestion(question string, answer string) {
+	datasource := "data source here"
+	db, err := sql.Open("mysql", datasource)
+	if err != nil {
+		panic(err.Error())
+	}
+	ctx := context.Background()
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		panic(err.Error())
+	}
+	sql_connection.Create_Question(conn, context.Background(), question, answer)
+}
+
+func calculator(expression string) {
+
+}
+
+func infixToPostFix(expression string) string {
+	operator := vector.StringVector{}
+	ret := ""
+	i := 0
+	for i < len(expression) {
+		s := string(expression[i])
+	L1:
+		if s == "*" || s == "-" || s == "*" || s == "/" || s == "^" || s == "(" || s == ")" {
+			if operator.Len() == 0 {
+				operator.Push(string(s))
+			} else {
+				if s == "(" {
+					operator.Push(s)
+				} else if s == ")" {
+					for operator.Len() != 0 && operator.At(operator.Len()-1) != "(" {
+						ret += string(operator.At(operator.Len() - 1))
+						operator.Pop()
+					}
+					if operator.Len() != 0 && operator.At(operator.Len()-1) == "(" {
+						operator.Pop()
+					}
+				} else if getPrecedence(operator.At(operator.Len()-1)) < getPrecedence(s) {
+					operator.Push(s)
+				} else if getPrecedence(operator.At(operator.Len()-1)) == getPrecedence(s) {
+					ret += operator.At(operator.Len() - 1)
+					operator.Pop()
+					operator.Push(s)
+				} else if getPrecedence(operator.At(operator.Len()-1)) > getPrecedence(s) {
+					ret += operator.At(operator.Len() - 1)
+					operator.Pop()
+					goto L1
+				}
+			}
+		} else {
+			if s != "(" && s != ")" {
+				ret += s
+			}
+		}
+	}
+	return ret
+}
+
+func getPrecedence(ops string) int {
+	switch ops {
+	case "+":
+	case "-":
+		return 1
+		break
+	case "*":
+	case "/":
+		return 2
+		break
+	case "^":
+		return 3
+		break
+	default:
+		return 0
+	}
+	return 0
 }
