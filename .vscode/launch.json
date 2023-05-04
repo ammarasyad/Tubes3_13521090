@@ -9,7 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/src/backend/sql/sql_connection_test.go"
+            "program": "${workspaceFolder}/src/backend/test.go"
         }
     ]
 }
