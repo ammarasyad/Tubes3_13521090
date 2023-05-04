@@ -18,13 +18,7 @@ func Create_Database(conn *sql.Conn, ctx context.Context) {
 		panic(err.Error())
 	}
 
-	_, err = conn.ExecContext(ctx, "USE GyrosPallas")
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	_, err = conn.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS history (
+	_, err = conn.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS GyrosPallas.history (
 		id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		question VARCHAR(255) NOT NULL,
 		answer VARCHAR(255) NOT NULL,
@@ -34,7 +28,7 @@ func Create_Database(conn *sql.Conn, ctx context.Context) {
 		panic(err.Error())
 	}
 
-	_, err = conn.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS questions (
+	_, err = conn.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS GyrosPallas.questions (
 		question VARCHAR(255) NOT NULL PRIMARY KEY,
 		answer VARCHAR(255) NOT NULL)`)
 
