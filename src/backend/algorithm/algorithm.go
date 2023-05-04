@@ -147,8 +147,12 @@ func addQuestion(question string, answer string) {
 	sql_connection.Create_Question(conn, context.Background(), question, answer)
 }
 
-func calculator(expression string) {
-
+func calculator(expression string) string {
+	ret, err := calculatePostfix(infixToPostFix(expression))
+	if err != nil {
+		return err.Error()
+	}
+	return strconv.FormatFloat(ret, 'f', 3, 32)
 }
 
 func infixToPostFix(expression string) string {
@@ -210,13 +214,16 @@ func getPrecedence(ops string) int {
 	}
 }
 
-func calculatePostfix(expression string) float64 {
+func calculatePostfix(expression string) (float64, error) {
 	ret := vector.Vector{}
 	temp1 := 0.
 	temp2 := 0.
 	for i := 0; i < len(expression); i++ {
 		s := string(expression[i])
 		if s == "+" || s == "-" || s == "*" || s == "/" || s == "^" {
+			if ret.Len() < 2 {
+				return 0, errors.New("unexpected expression")
+			}
 			temp2 = ret.At(ret.Len() - 1).(float64)
 			ret.Pop()
 			temp1 = ret.At(ret.Len() - 1).(float64)
@@ -232,7 +239,8 @@ func calculatePostfix(expression string) float64 {
 				ret.Push(res)
 			} else if s == "/" {
 				if temp2 == 0 {
-					panic(errors.New("zero division error"))
+					//panic(errors.New("zero division error"))
+					return 0, errors.New("zero division error")
 				}
 				res := temp1 / temp2
 				ret.Push(res)
@@ -240,7 +248,8 @@ func calculatePostfix(expression string) float64 {
 				res := math.Pow(temp1, temp2)
 				ret.Push(res)
 			} else {
-				panic(errors.New("unexpected operand"))
+				//panic(errors.New("unexpected operand"))
+				return 0, errors.New("unexpected operand")
 			}
 		} else {
 			res, err := strconv.ParseFloat(s, 64)
@@ -250,5 +259,5 @@ func calculatePostfix(expression string) float64 {
 			ret.Push(res)
 		}
 	}
-	return ret.At(0).(float64)
+	return ret.At(0).(float64), nil
 }
