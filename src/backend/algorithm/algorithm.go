@@ -1,10 +1,8 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"errors"
-	vector "github.com/niemeyer/golang/src/pkg/container/vector"
 	"math"
 	"regexp"
 	"sort"
@@ -12,26 +10,25 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	vector "github.com/niemeyer/golang/src/pkg/container/vector"
 )
 
 func main() {
-	data_source := "root:pwpwpwpw@/"
+	data_source := "root:Archr181003.@/"
 	db, err := sql.Open("mysql", data_source)
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	ctx := context.Background()
-	conn, err := db.Conn(ctx)
-
 	if err != nil {
 		panic(err.Error())
 	}
 
-	sql_connection.Create_Database(conn, ctx)
-	println(ProcessQuestion(conn, ctx, "tambahkan pertanyaan papope dengan jawaban poppop", true))
-	println(ProcessQuestion(conn, ctx, "p", true))
+	sql_connection.Create_Database(db)
+	println(ProcessQuestion(db, "tambahkan pertanyaan papope dengan jawaban poppop", true))
+	println(ProcessQuestion(db, "p", true))
 }
 
 func KMP(text string, pattern string) bool {
@@ -138,7 +135,7 @@ func levenshteinDistance(text string, pattern string) int {
 	return d[len(text)][len(pattern)]
 }
 
-func ProcessQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm bool) string {
+func ProcessQuestion(db *sql.DB, question string, kmpbm bool) string {
 	addQuestionRegex := regexp.MustCompile("[Tt]ambahkan pertanyaan [a-z,A-Z,0-9]* dengan jawaban [a-z,A-Z,0-9]*")
 	deleteQuestionRegex := regexp.MustCompile("[Hh]apus pertanyaan [a-z,A-Z,0-9]*")
 	calendarRegex := regexp.MustCompile("[0-9]{2}/[0-9]{2}/[0-9]{4}")
@@ -149,11 +146,11 @@ func ProcessQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm
 		temp = strings.Replace(temp, "tambahkan pertanyaan ", "", 1)
 		temp = strings.Replace(temp, " dengan jawaban ", "|", 1)
 		strarr := strings.Split(temp, "|")
-		answer = addQuestion(conn, ctx, strarr[0], strarr[1], kmpbm)
+		answer = addQuestion(db, strarr[0], strarr[1], kmpbm)
 	} else if deleteQuestionRegex.MatchString(question) {
 		temp := strings.Replace(question, "Hapus pertanyaan ", "", 1)
 		temp = strings.Replace(temp, "hapus pertanyaan ", "", 1)
-		answer = deleteQuestion(conn, ctx, temp, kmpbm)
+		answer = deleteQuestion(db, temp, kmpbm)
 	} else if calendarRegex.MatchString(question) {
 		//temp := strings.Replace(question, "/", "-", -1)
 		date, err := time.Parse("02/01/2006", question)
@@ -166,51 +163,51 @@ func ProcessQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm
 		temp = strings.Replace(temp, "hitung ", "", 1)
 		answer = calculator(temp)
 	} else {
-		answer = answerQuestion(conn, ctx, question, kmpbm)
+		answer = answerQuestion(db, question, kmpbm)
 	}
 	return answer
 }
 
-func addQuestion(conn *sql.Conn, ctx context.Context, question string, answer string, kmpbm bool) string {
-	questions := sql_connection.Read_All_Questions(conn, ctx)
+func addQuestion(db *sql.DB, question string, answer string, kmpbm bool) string {
+	questions := sql_connection.Read_All_Questions(db)
 	message := ""
 	for i := 0; i < len(questions); i++ {
 		if len(questions[i]) == len(question) {
 			if kmpbm {
 				if KMP(questions[i], question) {
 					message = "partanyaan " + question + " sudah ada! jawaban diupdate ke " + answer
-					sql_connection.Update_Answer(conn, ctx, question, answer)
+					sql_connection.Update_Answer(db, question, answer)
 					return message
 				}
 			} else {
 				if BM(questions[i], question) {
 					message = "partanyaan " + question + " sudah ada! jawaban diupdate ke " + answer
-					sql_connection.Update_Answer(conn, ctx, question, answer)
+					sql_connection.Update_Answer(db, question, answer)
 					return message
 				}
 			}
 		}
 	}
-	sql_connection.Create_Question(conn, context.Background(), question, answer)
+	sql_connection.Create_Question(db, question, answer)
 	message = "pertanyaan " + question + " telah ditambah"
 	return message
 }
 
-func deleteQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm bool) string {
-	questions := sql_connection.Read_All_Questions(conn, ctx)
+func deleteQuestion(db *sql.DB, question string, kmpbm bool) string {
+	questions := sql_connection.Read_All_Questions(db)
 	message := ""
 	for i := 0; i < len(questions); i++ {
 		if len(questions[i]) == len(question) {
 			if kmpbm {
 				if KMP(questions[i], question) {
 					message = "partanyaan " + question + " telah dihapus"
-					sql_connection.Delete_Question(conn, ctx, question)
+					sql_connection.Delete_Question(db, question)
 					return message
 				}
 			} else {
 				if BM(questions[i], question) {
 					message = "partanyaan " + question + " telah dihapus"
-					sql_connection.Delete_Question(conn, ctx, question)
+					sql_connection.Delete_Question(db, question)
 					return message
 				}
 			}
@@ -220,8 +217,8 @@ func deleteQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm 
 	return message
 }
 
-func answerQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm bool) string {
-	questions := sql_connection.Read_All_Questions(conn, ctx)
+func answerQuestion(db *sql.DB, question string, kmpbm bool) string {
+	questions := sql_connection.Read_All_Questions(db)
 	message := ""
 	if len(questions) == 0 {
 		return "tidak ada pertanyaan di database"
@@ -230,12 +227,12 @@ func answerQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm 
 			if len(question) == len(questions[i]) {
 				if kmpbm {
 					if KMP(questions[i], question) {
-						message = sql_connection.Read_Question(conn, ctx, questions[i])
+						message = sql_connection.Read_Question(db, questions[i])
 						return message
 					}
 				} else {
 					if BM(questions[i], question) {
-						message = sql_connection.Read_Question(conn, ctx, questions[i])
+						message = sql_connection.Read_Question(db, questions[i])
 						return message
 					}
 				}
@@ -247,7 +244,7 @@ func answerQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm 
 		})
 		percentage := ((float64(len(question)) - float64(levenshteinDistance(questions[0], question))) / float64(len(question))) * 100
 		if percentage >= 90 {
-			message = sql_connection.Read_Question(conn, ctx, questions[0])
+			message = sql_connection.Read_Question(db, questions[0])
 			return message
 		}
 		message = "tidak ada pertanyaan " + question + " di database.\n" +
