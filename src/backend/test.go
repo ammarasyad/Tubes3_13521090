@@ -16,4 +16,5 @@ func main() {
 
 	sql_connection.Create_Database(db)
 	println(algorithm.ProcessQuestion(db, "tambahkan pertanyaan something like this dengan jawaban hahaha lol", true))
+	println(algorithm.ProcessQuestion(db, "hapus pertanyaan something like this", true))
 }
