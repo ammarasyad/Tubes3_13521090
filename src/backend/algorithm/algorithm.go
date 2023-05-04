@@ -152,7 +152,7 @@ func ProcessQuestion(question string, kmpbm bool) string {
 }
 
 func addQuestion(question string, answer string, kmpbm bool) string {
-	datasource := "root:haidar23.@/stima"
+	datasource := "data source here"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
@@ -186,7 +186,7 @@ func addQuestion(question string, answer string, kmpbm bool) string {
 }
 
 func deleteQuestion(question string, kmpbm bool) string {
-	datasource := "root:haidar23.@/stima"
+	datasource := "data source here"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
@@ -219,7 +219,7 @@ func deleteQuestion(question string, kmpbm bool) string {
 }
 
 func answerQuestion(question string, kmpbm bool) string {
-	datasource := "root:haidar23.@/stima"
+	datasource := "data source here"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
