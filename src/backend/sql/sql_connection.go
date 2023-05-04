@@ -108,7 +108,7 @@ func Update_Answer(conn *sql.Conn, ctx context.Context, question string, answer 
 }
 
 func Delete_Question(conn *sql.Conn, ctx context.Context, question string) {
-	_, err := conn.QueryContext(ctx, "DELETE FROM questions WHERE question = ?", question)
+	_, err := conn.QueryContext(ctx, "DELETE FROM GyrosPallas.questions WHERE question = ?", question)
 
 	if err != nil {
 		panic(err.Error())
