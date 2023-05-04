@@ -40,7 +40,7 @@ func Create_Database(conn *sql.Conn, ctx context.Context) {
 // CRD operations for history table (no update)
 
 func Create_History(conn *sql.Conn, ctx context.Context, question string, answer string) {
-	_, err := conn.QueryContext(ctx, "INSERT IGNORE INTO history (question, answer) VALUES (?, ?)", question, answer)
+	_, err := conn.QueryContext(ctx, "INSERT IGNORE INTO GyrosPallas.history (question, answer) VALUES (?, ?)", question, answer)
 
 	if err != nil {
 		panic(err.Error())
@@ -49,12 +49,12 @@ func Create_History(conn *sql.Conn, ctx context.Context, question string, answer
 
 func Read_History(conn *sql.Conn, ctx context.Context, question string) string {
 	var answer string
-	conn.QueryRowContext(ctx, "SELECT answer FROM history WHERE question = ?", question).Scan(&answer)
+	conn.QueryRowContext(ctx, "SELECT answer FROM GyrosPallas.history WHERE question = ?", question).Scan(&answer)
 	return answer
 }
 
 func Delete_History(conn *sql.Conn, ctx context.Context, question string) {
-	_, err := conn.QueryContext(ctx, "DELETE FROM history WHERE question = ?", question)
+	_, err := conn.QueryContext(ctx, "DELETE FROM GyrosPallas.history WHERE question = ?", question)
 
 	if err != nil {
 		panic(err.Error())
@@ -64,7 +64,7 @@ func Delete_History(conn *sql.Conn, ctx context.Context, question string) {
 // CRUD operations for questions table
 
 func Create_Question(conn *sql.Conn, ctx context.Context, question string, answer string) {
-	_, err := conn.QueryContext(ctx, "INSERT IGNORE INTO questions (question, answer) VALUES (?, ?)", question, answer)
+	_, err := conn.QueryContext(ctx, "INSERT IGNORE INTO GyrosPallas.questions (question, answer) VALUES (?, ?)", question, answer)
 
 	if err != nil {
 		panic(err.Error())
@@ -73,13 +73,13 @@ func Create_Question(conn *sql.Conn, ctx context.Context, question string, answe
 
 func Read_Question(conn *sql.Conn, ctx context.Context, question string) string {
 	var answer string
-	conn.QueryRowContext(ctx, "SELECT answer FROM questions WHERE question = ?", question).Scan(&answer)
+	conn.QueryRowContext(ctx, "SELECT answer FROM GyrosPallas.questions WHERE question = ?", question).Scan(&answer)
 	return answer
 }
 
 func Read_All_Questions(conn *sql.Conn, ctx context.Context) []string {
 	var questions []string
-	rows, err := conn.QueryContext(ctx, "SELECT question FROM questions")
+	rows, err := conn.QueryContext(ctx, "SELECT question FROM GyrosPallas.questions")
 
 	if err != nil {
 		panic(err.Error())
@@ -95,15 +95,12 @@ func Read_All_Questions(conn *sql.Conn, ctx context.Context) []string {
 }
 
 func Update_Question(conn *sql.Conn, ctx context.Context, question string, answer string) {
-	_, err := conn.QueryContext(ctx, "UPDATE questions SET answer = ? WHERE question = ?", answer, question)
-
-	if err != nil {
-		panic(err.Error())
-	}
+	Delete_Question(conn, ctx, question)
+	Create_Question(conn, ctx, question, answer)
 }
 
 func Update_Answer(conn *sql.Conn, ctx context.Context, question string, answer string) {
-	_, err := conn.QueryContext(ctx, "UPDATE questions SET answer = ? WHERE question = ?", answer, question)
+	_, err := conn.QueryContext(ctx, "UPDATE GyrosPallas.questions SET answer = ? WHERE question = ?", answer, question)
 
 	if err != nil {
 		panic(err.Error())
