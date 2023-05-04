@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	data_source := "root:pwpwpwpw@/gyrospallas"
+	data_source := "root:pwpwpwpw@/"
 	db, err := sql.Open("mysql", data_source)
 
 	if err != nil {
@@ -30,7 +30,8 @@ func main() {
 	}
 
 	sql_connection.Create_Database(conn, ctx)
-	println(ProcessQuestion("tambah pertanyaan papope dengan jawaban poppop", true))
+	println(ProcessQuestion(conn, ctx, "tambahkan pertanyaan papope dengan jawaban poppop", true))
+	println(ProcessQuestion(conn, ctx, "p", true))
 }
 
 func KMP(text string, pattern string) bool {
@@ -137,7 +138,7 @@ func levenshteinDistance(text string, pattern string) int {
 	return d[len(text)][len(pattern)]
 }
 
-func ProcessQuestion(question string, kmpbm bool) string {
+func ProcessQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm bool) string {
 	addQuestionRegex := regexp.MustCompile("[Tt]ambahkan pertanyaan [a-z,A-Z,0-9]* dengan jawaban [a-z,A-Z,0-9]*")
 	deleteQuestionRegex := regexp.MustCompile("[Hh]apus pertanyaan [a-z,A-Z,0-9]*")
 	calendarRegex := regexp.MustCompile("[0-9]{2}/[0-9]{2}/[0-9]{4}")
@@ -146,13 +147,13 @@ func ProcessQuestion(question string, kmpbm bool) string {
 	if addQuestionRegex.MatchString(question) {
 		temp := strings.Replace(question, "Tambahkan pertanyaan ", "", 1)
 		temp = strings.Replace(temp, "tambahkan pertanyaan ", "", 1)
-		temp = strings.Replace(temp, "dengan jawaban", "|", 1)
-		strarr := strings.Split(temp, " | ")
-		answer = addQuestion(strarr[0], strarr[1], kmpbm)
+		temp = strings.Replace(temp, " dengan jawaban ", "|", 1)
+		strarr := strings.Split(temp, "|")
+		answer = addQuestion(conn, ctx, strarr[0], strarr[1], kmpbm)
 	} else if deleteQuestionRegex.MatchString(question) {
 		temp := strings.Replace(question, "Hapus pertanyaan ", "", 1)
 		temp = strings.Replace(temp, "hapus pertanyaan ", "", 1)
-		answer = deleteQuestion(temp, kmpbm)
+		answer = deleteQuestion(conn, ctx, temp, kmpbm)
 	} else if calendarRegex.MatchString(question) {
 		//temp := strings.Replace(question, "/", "-", -1)
 		date, err := time.Parse("02/01/2006", question)
@@ -165,118 +166,100 @@ func ProcessQuestion(question string, kmpbm bool) string {
 		temp = strings.Replace(temp, "hitung ", "", 1)
 		answer = calculator(temp)
 	} else {
-		answer = answerQuestion(question, kmpbm)
+		answer = answerQuestion(conn, ctx, question, kmpbm)
 	}
 	return answer
 }
 
-func addQuestion(question string, answer string, kmpbm bool) string {
-	datasource := "root:pwpwpwpw@/gyrospallas"
-	db, err := sql.Open("mysql", datasource)
-	message := ""
-	if err != nil {
-		panic(err.Error())
-	}
-	ctx := context.Background()
-	conn, err := db.Conn(ctx)
-	if err != nil {
-		panic(err.Error())
-	}
+func addQuestion(conn *sql.Conn, ctx context.Context, question string, answer string, kmpbm bool) string {
 	questions := sql_connection.Read_All_Questions(conn, ctx)
+	message := ""
 	for i := 0; i < len(questions); i++ {
-		if kmpbm {
-			if KMP(questions[i], question) {
-				message = "partanyaan " + question + " sudah ada! jawaban diupdate ke " + answer
-				sql_connection.Update_Answer(conn, ctx, question, answer)
-				return message
-			}
-		} else {
-			if BM(questions[i], question) {
-				message = "partanyaan " + question + " sudah ada! jawaban diupdate ke " + answer
-				sql_connection.Update_Answer(conn, ctx, question, answer)
-				return message
+		if len(questions[i]) == len(question) {
+			if kmpbm {
+				if KMP(questions[i], question) {
+					message = "partanyaan " + question + " sudah ada! jawaban diupdate ke " + answer
+					sql_connection.Update_Answer(conn, ctx, question, answer)
+					return message
+				}
+			} else {
+				if BM(questions[i], question) {
+					message = "partanyaan " + question + " sudah ada! jawaban diupdate ke " + answer
+					sql_connection.Update_Answer(conn, ctx, question, answer)
+					return message
+				}
 			}
 		}
-
 	}
 	sql_connection.Create_Question(conn, context.Background(), question, answer)
 	message = "pertanyaan " + question + " telah ditambah"
 	return message
 }
 
-func deleteQuestion(question string, kmpbm bool) string {
-	datasource := "root:pwpwpwpw@/gyrospallas"
-	db, err := sql.Open("mysql", datasource)
-	message := ""
-	if err != nil {
-		panic(err.Error())
-	}
-	ctx := context.Background()
-	conn, err := db.Conn(ctx)
-	if err != nil {
-		panic(err.Error())
-	}
+func deleteQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm bool) string {
 	questions := sql_connection.Read_All_Questions(conn, ctx)
+	message := ""
 	for i := 0; i < len(questions); i++ {
-		if kmpbm {
-			if KMP(questions[i], question) {
-				message = "partanyaan " + question + " telah dihapus"
-				sql_connection.Delete_Question(conn, ctx, question)
-				return message
-			}
-		} else {
-			if BM(questions[i], question) {
-				message = "partanyaan " + question + " telah dihapus"
-				sql_connection.Delete_Question(conn, ctx, question)
-				return message
+		if len(questions[i]) == len(question) {
+			if kmpbm {
+				if KMP(questions[i], question) {
+					message = "partanyaan " + question + " telah dihapus"
+					sql_connection.Delete_Question(conn, ctx, question)
+					return message
+				}
+			} else {
+				if BM(questions[i], question) {
+					message = "partanyaan " + question + " telah dihapus"
+					sql_connection.Delete_Question(conn, ctx, question)
+					return message
+				}
 			}
 		}
-
 	}
 	message = "tidak ada pertanyaan " + question + " di database"
 	return message
 }
 
-func answerQuestion(question string, kmpbm bool) string {
-	datasource := "root:pwpwpwpw@/gyrospallas"
-	db, err := sql.Open("mysql", datasource)
-	message := ""
-	if err != nil {
-		panic(err.Error())
-	}
-	ctx := context.Background()
-	conn, err := db.Conn(ctx)
-	if err != nil {
-		panic(err.Error())
-	}
+func answerQuestion(conn *sql.Conn, ctx context.Context, question string, kmpbm bool) string {
 	questions := sql_connection.Read_All_Questions(conn, ctx)
-	for i := 0; i < len(questions); i++ {
-		if kmpbm {
-			if KMP(questions[i], question) {
-				message = sql_connection.Read_Question(conn, ctx, question)
-				return message
+	message := ""
+	if len(questions) == 0 {
+		return "tidak ada pertanyaan di database"
+	} else {
+		for i := 0; i < len(questions); i++ {
+			if len(question) == len(questions[i]) {
+				if kmpbm {
+					if KMP(questions[i], question) {
+						message = sql_connection.Read_Question(conn, ctx, questions[i])
+						return message
+					}
+				} else {
+					if BM(questions[i], question) {
+						message = sql_connection.Read_Question(conn, ctx, questions[i])
+						return message
+					}
+				}
 			}
-		} else {
-			if BM(questions[i], question) {
-				message = sql_connection.Read_Question(conn, ctx, question)
-				return message
-			}
+
 		}
-	}
-	sort.SliceStable(questions, func(i, j int) bool {
-		return levenshteinDistance(questions[i], question) < levenshteinDistance(questions[j], question)
-	})
-	percentage := ((float64(len(question)) - float64(levenshteinDistance(questions[0], question))) / float64(len(question))) * 100
-	if percentage >= 90 {
-		message = sql_connection.Read_Question(conn, ctx, questions[0])
+		sort.SliceStable(questions, func(i, j int) bool {
+			return levenshteinDistance(questions[i], question) < levenshteinDistance(questions[j], question)
+		})
+		percentage := ((float64(len(question)) - float64(levenshteinDistance(questions[0], question))) / float64(len(question))) * 100
+		if percentage >= 90 {
+			message = sql_connection.Read_Question(conn, ctx, questions[0])
+			return message
+		}
+		message = "tidak ada pertanyaan " + question + " di database.\n" +
+			"apakah maksud anda: \n"
+		i := 0
+		for i < len(questions) && i < 3 {
+			message += strconv.Itoa(i+1) + ". " + questions[i] + "\n"
+			i++
+		}
 		return message
 	}
-	message = "tidak ada pertanyaan " + question + " di database.\n" +
-		"apakah maksud anda: \n" +
-		"1. " + questions[0] + "\n" +
-		"2. " + questions[1] + "\n" +
-		"3. " + questions[2]
-	return message
+
 }
 
 func calculator(expression string) string {
