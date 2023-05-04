@@ -11,6 +11,7 @@ import (
 	sql_connection "src/backend/src/backend/sql"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func KMP(text string, pattern string) bool {
@@ -127,14 +128,19 @@ func ProcessQuestion(question string, kmpbm bool) string {
 		temp := strings.Replace(question, "Tambahkan pertanyaan ", "", 1)
 		temp = strings.Replace(temp, "tambahkan pertanyaan ", "", 1)
 		temp = strings.Replace(temp, "dengan jawaban", "|", 1)
-		strarr := strings.Split(temp, "|")
+		strarr := strings.Split(temp, " | ")
 		answer = addQuestion(strarr[0], strarr[1], kmpbm)
 	} else if deleteQuestionRegex.MatchString(question) {
 		temp := strings.Replace(question, "Hapus pertanyaan ", "", 1)
 		temp = strings.Replace(temp, "hapus pertanyaan ", "", 1)
 		answer = deleteQuestion(temp, kmpbm)
 	} else if calendarRegex.MatchString(question) {
-
+		//temp := strings.Replace(question, "/", "-", -1)
+		date, err := time.Parse("02/01/2006", question)
+		if err != nil {
+			return err.Error()
+		}
+		return date.Weekday().String()
 	} else if calculatorRegex.MatchString(question) {
 		temp := strings.Replace(question, "Hitung ", "", 1)
 		temp = strings.Replace(temp, "hitung ", "", 1)
@@ -146,7 +152,7 @@ func ProcessQuestion(question string, kmpbm bool) string {
 }
 
 func addQuestion(question string, answer string, kmpbm bool) string {
-	datasource := "data source here"
+	datasource := "root:haidar23.@/stima"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
@@ -180,7 +186,7 @@ func addQuestion(question string, answer string, kmpbm bool) string {
 }
 
 func deleteQuestion(question string, kmpbm bool) string {
-	datasource := "data source here"
+	datasource := "root:haidar23.@/stima"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
@@ -213,7 +219,7 @@ func deleteQuestion(question string, kmpbm bool) string {
 }
 
 func answerQuestion(question string, kmpbm bool) string {
-	datasource := "data source here"
+	datasource := "root:haidar23.@/stima"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
