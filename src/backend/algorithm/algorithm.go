@@ -1,4 +1,4 @@
-package algorithm
+package main
 
 import (
 	"context"
@@ -13,6 +13,25 @@ import (
 	"strings"
 	"time"
 )
+
+func main() {
+	data_source := "root:pwpwpwpw@/gyrospallas"
+	db, err := sql.Open("mysql", data_source)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	ctx := context.Background()
+	conn, err := db.Conn(ctx)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	sql_connection.Create_Database(conn, ctx)
+	println(ProcessQuestion("tambah pertanyaan papope dengan jawaban poppop", true))
+}
 
 func KMP(text string, pattern string) bool {
 	fail := computeBorder(pattern)
@@ -152,7 +171,7 @@ func ProcessQuestion(question string, kmpbm bool) string {
 }
 
 func addQuestion(question string, answer string, kmpbm bool) string {
-	datasource := "data source here"
+	datasource := "root:pwpwpwpw@/gyrospallas"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
@@ -186,7 +205,7 @@ func addQuestion(question string, answer string, kmpbm bool) string {
 }
 
 func deleteQuestion(question string, kmpbm bool) string {
-	datasource := "data source here"
+	datasource := "root:pwpwpwpw@/gyrospallas"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
@@ -219,7 +238,7 @@ func deleteQuestion(question string, kmpbm bool) string {
 }
 
 func answerQuestion(question string, kmpbm bool) string {
-	datasource := "data source here"
+	datasource := "root:pwpwpwpw@/gyrospallas"
 	db, err := sql.Open("mysql", datasource)
 	message := ""
 	if err != nil {
