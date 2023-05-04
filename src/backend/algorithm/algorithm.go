@@ -1,4 +1,4 @@
-package main
+package algorithm
 
 import (
 	"database/sql"
@@ -13,23 +13,6 @@ import (
 
 	vector "github.com/niemeyer/golang/src/pkg/container/vector"
 )
-
-func main() {
-	data_source := "root:Archr181003.@/"
-	db, err := sql.Open("mysql", data_source)
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	sql_connection.Create_Database(db)
-	println(ProcessQuestion(db, "tambahkan pertanyaan papope dengan jawaban poppop", true))
-	println(ProcessQuestion(db, "p", true))
-}
 
 func KMP(text string, pattern string) bool {
 	fail := computeBorder(pattern)
