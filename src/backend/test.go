@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	data_source := "root:password@/"
+	data_source := "root:Archr181003.@/"
 	db, err := sql.Open("mysql", data_source)
 
 	if err != nil {
@@ -15,5 +15,5 @@ func main() {
 	}
 
 	sql_connection.Create_Database(db)
-	println(algorithm.ProcessQuestion(db, "tambahkan pertanyaan papope dengan jawaban poppop", true))
+	println(algorithm.ProcessQuestion(db, "tambahkan pertanyaan something like this dengan jawaban hahaha lol", true))
 }

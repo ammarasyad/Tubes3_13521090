@@ -119,7 +119,7 @@ func levenshteinDistance(text string, pattern string) int {
 }
 
 func ProcessQuestion(db *sql.DB, question string, kmpbm bool) string {
-	addQuestionRegex := regexp.MustCompile("[Tt]ambahkan pertanyaan [a-z,A-Z,0-9]* dengan jawaban [a-z,A-Z,0-9]*")
+	addQuestionRegex := regexp.MustCompile("[Tt]ambahkan pertanyaan \\b[^.?!]+ dengan jawaban \\b[^.?!]+")
 	deleteQuestionRegex := regexp.MustCompile("[Hh]apus pertanyaan [a-z,A-Z,0-9]*")
 	calendarRegex := regexp.MustCompile("[0-9]{2}/[0-9]{2}/[0-9]{4}")
 	calculatorRegex := regexp.MustCompile("[Hh]itung ")
@@ -136,6 +136,7 @@ func ProcessQuestion(db *sql.DB, question string, kmpbm bool) string {
 		answer = deleteQuestion(db, temp, kmpbm)
 	} else if calendarRegex.MatchString(question) {
 		//temp := strings.Replace(question, "/", "-", -1)
+		// temp := strings.ReplaceAll()
 		date, err := time.Parse("02/01/2006", question)
 		if err != nil {
 			return err.Error()
