@@ -1,17 +1,15 @@
-package main
+package algorithm
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	vector "github.com/niemeyer/golang/src/pkg/container/vector"
 	"math"
 	"regexp"
 	sql_connection "src/backend/src/backend/sql"
+	"strconv"
 )
-
-func main() {
-	println(infixToPostFix("1+2-3"))
-}
 
 func KMP(text string, pattern string) bool {
 	fail := computeBorder(pattern)
@@ -210,4 +208,47 @@ func getPrecedence(ops string) int {
 	} else {
 		return 0
 	}
+}
+
+func calculatePostfix(expression string) float64 {
+	ret := vector.Vector{}
+	temp1 := 0.
+	temp2 := 0.
+	for i := 0; i < len(expression); i++ {
+		s := string(expression[i])
+		if s == "+" || s == "-" || s == "*" || s == "/" || s == "^" {
+			temp2 = ret.At(ret.Len() - 1).(float64)
+			ret.Pop()
+			temp1 = ret.At(ret.Len() - 1).(float64)
+			ret.Pop()
+			if s == "+" {
+				res := temp1 + temp2
+				ret.Push(res)
+			} else if s == "-" {
+				res := temp1 - temp2
+				ret.Push(res)
+			} else if s == "*" {
+				res := temp1 * temp2
+				ret.Push(res)
+			} else if s == "/" {
+				if temp2 == 0 {
+					panic(errors.New("zero division error"))
+				}
+				res := temp1 / temp2
+				ret.Push(res)
+			} else if s == "^" {
+				res := math.Pow(temp1, temp2)
+				ret.Push(res)
+			} else {
+				panic(errors.New("unexpected operand"))
+			}
+		} else {
+			res, err := strconv.ParseFloat(s, 64)
+			if err != nil {
+				panic(err)
+			}
+			ret.Push(res)
+		}
+	}
+	return ret.At(0).(float64)
 }
