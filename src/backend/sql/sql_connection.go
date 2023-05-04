@@ -13,10 +13,6 @@ func Create_Database(db *sql.DB) {
 		panic(err.Error())
 	}
 
-	if err != nil {
-		panic(err.Error())
-	}
-
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS GyrosPallas.history (
 		id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		question VARCHAR(255) NOT NULL,
