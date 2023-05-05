@@ -14,6 +14,37 @@ function ChatRoom({ chatRoomId, chatHistory, updateChatHistory }) {
     setMessages(chatHistory);
   }, [chatHistory]);
 
+  useEffect(() => {
+    const initHistory = async () => {
+      if (chatRoomId === 1) {
+        fetch('http://localhost:3001/api/get/history')
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            const newResponseArray = data.questions.reverse().map((string, index) => ([{
+              sender: 1,
+              id: messages.length + 1 + index * 2,
+              content: string,
+            }, {
+              sender: 0,
+              id: messages.length + 2 + index * 2,
+              content: data.answers[data.answers.length - 1 - index],
+            }]));
+            const updatedMessages = [...messages, ...newResponseArray.flat()];
+            console.log(newResponseArray.flat());
+            setMessages(updatedMessages);
+            updateChatHistory(chatRoomId, updatedMessages); // Update the chat history in App
+            // Handle the response data if needed
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      }
+    };
+  
+    initHistory();
+  }, [chatRoomId]);
+
   const handleSendMessage = () => {
     if (currentMessage.trim() !== '') {
       const newMessage = {
@@ -42,6 +73,17 @@ function ChatRoom({ chatRoomId, chatHistory, updateChatHistory }) {
           setMessages(updatedMessages);
           updateChatHistory(chatRoomId, updatedMessages); // Update the chat history in App
           // Handle the response data if needed
+          const saveOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: currentMessage,
+                                    answer: data.result}),
+          };
+          return fetch('http://localhost:3001/api/save/history', saveOptions);
+        })
+        .then(response => response.text())
+        .then(data => {
+          console.log(data);
         })
         .catch(error => {
           console.error('Error:', error);
