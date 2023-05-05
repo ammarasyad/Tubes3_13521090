@@ -148,14 +148,19 @@ func handlerMessage(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func main() {
-	data_source := "root:lololol@/"
-	db, err := sql.Open("mysql", data_source)
+	db, err := sql.Open("mysql", `6ttwjsyd5ockpnwbwiaw:pscale_pw_bUWWqyPUahvWN0eggccJzZMdsHBCwx3RyCPKRW3v9yI@tcp(aws.connect.psdb.cloud)/gyrospallas?tls=true`)
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	sql_connection.Create_Database(db)
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		panic(err.Error())
+	}
+
+	// sql_connection.Create_Database(db)
 
 	http.HandleFunc("/api/messages", func(w http.ResponseWriter, r *http.Request) {
 		handlerMessage(w, r, db)
