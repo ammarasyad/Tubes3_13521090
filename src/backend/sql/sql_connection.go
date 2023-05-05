@@ -42,6 +42,27 @@ func Create_History(db *sql.DB, question string, answer string) {
 	}
 }
 
+func Read_All_History(db *sql.DB) ([]string, []string) {
+	var questions []string
+	var answers []string
+
+	rows, err := db.Query("SELECT question, answer FROM GyrosPallas.history ORDER BY time DESC")
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	for rows.Next() {
+		var question string
+		var answer string
+		rows.Scan(&question, &answer)
+		questions = append(questions, question)
+		answers = append(answers, answer)
+	}
+
+	return questions, answers
+}
+
 func Read_History(db *sql.DB, question string) string {
 	var answer string
 	db.QueryRow("SELECT answer FROM GyrosPallas.history WHERE question = ?", question).Scan(&answer)
