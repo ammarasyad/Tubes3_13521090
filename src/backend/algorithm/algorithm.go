@@ -83,13 +83,13 @@ func addQuestion(db *sql.DB, question string, answer string, kmpbm bool) string 
 			if kmpbm {
 				if KMP(questions[i], question) {
 					message = "pertanyaan " + question + " sudah ada! jawaban diupdate menjadi " + answer
-					sql_connection.Update_Answer(db, question, answer)
+					sql_connection.Update_Answer(db, questions[i], answer)
 					return message
 				}
 			} else {
 				if BM(questions[i], question) {
 					message = "pertanyaan " + question + " sudah ada! jawaban diupdate menjadi " + answer
-					sql_connection.Update_Answer(db, question, answer)
+					sql_connection.Update_Answer(db, questions[i], answer)
 					return message
 				}
 			}
@@ -108,13 +108,13 @@ func deleteQuestion(db *sql.DB, question string, kmpbm bool) string {
 			if kmpbm {
 				if KMP(questions[i], question) {
 					message = "partanyaan " + question + " telah dihapus"
-					sql_connection.Delete_Question(db, question)
+					sql_connection.Delete_Question(db, questions[i])
 					return message
 				}
 			} else {
 				if BM(questions[i], question) {
 					message = "partanyaan " + question + " telah dihapus"
-					sql_connection.Delete_Question(db, question)
+					sql_connection.Delete_Question(db, questions[i])
 					return message
 				}
 			}
