@@ -54,41 +54,33 @@ Tugas besar ketiga IF2211 - Strategi Algoritma adalah penerapan algoritma String
 
 
 ## Usage
-How does one go about using it?
-Provide various use cases and code examples here.
-
-`write-your-code-here`
+- Send any type of question in text format to ask a question.
+- Send text in `hitung ([0-9]['(',')','+','-','/','*'])*` format to use the calculator.
+- Send text in `hari apa (dd/mm/yyyy)` format to ask what day it is at that time.
+- Send text in `tambahkan pertanyaan (question) dengan jawaban (answer)` format to add questions and answers to the database.
+- Send text in `hapus pertanyaan (question)` to erase question and it's answer from the database.
 
 
 ## Project Status
-Project is: _in progress_ / _complete_ / _no longer being worked on_. If you are no longer working on it, provide reasons why.
+Project is: _no longer being worked on_. reason: The project has passed the deadline.
 
 
 ## Room for Improvement
-Include areas you believe need improvement / could be improved. Also add TODOs for future development.
 
 Room for improvement:
-- Improvement to be done 1
-- Improvement to be done 2
-
-To do:
-- Feature to be added 1
-- Feature to be added 2
+- Improve Calculator.
+- Improve UI design.
+- Improve Chat History database.
 
 
 ## Acknowledgements
 Give credit here.
-- This project was inspired by...
-- This project was based on [this tutorial](https://www.example.com).
-- Many thanks to...
+- This project was inspired by [ChatGPT](https://chat.openai.com).
+- This project was based on [this specification](https://informatika.stei.itb.ac.id/~rinaldi.munir/Stmik/2022-2023/Tubes3-Stima-2023.pdf).
 
 
 ## Contact
-Created by [@flynerdpl](https://www.flynerd.pl/) - feel free to contact me!
-
-
-<!-- Optional -->
-<!-- ## License -->
-<!-- This project is open source and available under the [... License](). -->
-
-<!-- You don't have to include all sections - just the one's relevant to your project -->
+Created by:
+- [Tobias Natalio Sianipar - 13521090](https://github.com/tobisns)
+- [Haidar Hamda - 13521105](https://github.com/haidarhamda)
+- [Ammar Rasyad Chaeroel - 13521136](https://github.com/ammarasyad)
