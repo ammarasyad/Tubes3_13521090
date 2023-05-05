@@ -2,7 +2,6 @@ package algorithm
 
 import (
 	"database/sql"
-	"errors"
 	"math"
 	"regexp"
 	"sort"
@@ -10,88 +9,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	vector "github.com/niemeyer/golang/src/pkg/container/vector"
 )
 
-func KMP(text string, pattern string) bool {
-	fail := computeBorder(pattern)
-	i := 0
-	j := 0
-	for i < len(text) {
-		if pattern[j] == text[i] {
-			if j == len(pattern)-1 {
-				return true
-			}
-			i++
-			j++
-		} else if j > 0 {
-			j = fail[j-1]
-		} else {
-			i++
-		}
-	}
-	return false
-}
-
-func computeBorder(pattern string) []int {
-	fail := make([]int, len(pattern))
-	for i := 0; i < len(fail); i++ {
-		fail[i] = 0
-	}
-	j := 0
-	i := 1
-	for i < len(pattern) {
-		if pattern[j] == pattern[i] {
-			fail[i] = j + 1
-			i++
-			j++
-		} else if j > 0 {
-			j = fail[j-1]
-		} else {
-			fail[i] = 0
-			i++
-		}
-	}
-	return fail
-}
-
-func BM(text string, pattern string) bool {
-	last := buildLast(pattern)
-	i := len(pattern) - 1
-	if i > len(text)-1 {
-		return false
-	}
-	j := len(pattern) - 1
-	for i <= len(text)-1 {
-		if pattern[j] == text[i] {
-			if j == 0 {
-				return true
-			} else {
-				i--
-				j--
-			}
-		} else {
-			lo := last[text[i]]
-			i = i + len(pattern) - int(math.Min(float64(j), float64(1+lo)))
-			j = len(pattern) - 1
-		}
-	}
-	return false
-}
-
-func buildLast(pattern string) []int {
-	last := make([]int, 128)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < len(pattern); i++ {
-		last[int(pattern[i])] = i
-	}
-	return last
-}
-
 func levenshteinDistance(text string, pattern string) int {
+	text = strings.ToLower(text)
+	pattern = strings.ToLower(pattern)
 	d := make([][]int, len(text)+1)
 	for i := 0; i < len(text)+1; i++ {
 		d[i] = make([]int, len(pattern)+1)
@@ -242,119 +164,4 @@ func answerQuestion(db *sql.DB, question string, kmpbm bool) string {
 		return message
 	}
 
-}
-
-func calculator(expression string) string {
-	ret, err := calculatePostfix(infixToPostFix(expression))
-	if err != nil {
-		return err.Error()
-	}
-	return strconv.FormatFloat(ret, 'f', 3, 32)
-}
-
-func infixToPostFix(expression string) string {
-	operator := vector.StringVector{}
-	ret := ""
-	i := 0
-	for i < len(expression) {
-		s := string(expression[i])
-	L1:
-		if s == "+" || s == "-" || s == "*" || s == "/" || s == "^" || s == "(" || s == ")" {
-			if operator.Len() == 0 {
-				operator.Push(s)
-			} else {
-				if s == "(" {
-					operator.Push(s)
-				} else if s == ")" {
-					for operator.Len() > 0 && operator.At(operator.Len()-1) != "(" {
-						ret += operator.At(operator.Len() - 1)
-						operator.Pop()
-					}
-					if operator.Len() > 0 && operator.At(operator.Len()-1) == "(" {
-						operator.Pop()
-					}
-				} else if getPrecedence(operator.At(operator.Len()-1)) < getPrecedence(s) {
-					operator.Push(s)
-				} else if getPrecedence(operator.At(operator.Len()-1)) == getPrecedence(s) {
-					ret += operator.At(operator.Len() - 1)
-					operator.Pop()
-					operator.Push(s)
-				} else if getPrecedence(operator.At(operator.Len()-1)) > getPrecedence(s) {
-					ret += operator.At(operator.Len() - 1)
-					operator.Pop()
-					goto L1
-				}
-			}
-		} else {
-			if s != "(" && s != ")" {
-				ret += s
-			}
-		}
-		i++
-	}
-	for operator.Len() > 0 {
-		ret += operator.At(operator.Len() - 1)
-		operator.Pop()
-	}
-	return ret
-}
-
-func getPrecedence(ops string) int {
-	if ops == "-" || ops == "+" {
-		return 1
-	} else if ops == "*" || ops == "/" {
-		return 2
-	} else if ops == "^" {
-		return 3
-	} else {
-		return 0
-	}
-}
-
-func calculatePostfix(expression string) (float64, error) {
-	ret := vector.Vector{}
-	temp1 := 0.
-	temp2 := 0.
-	for i := 0; i < len(expression); i++ {
-		s := string(expression[i])
-		if s == "+" || s == "-" || s == "*" || s == "/" || s == "^" {
-			if ret.Len() < 2 {
-				return 0, errors.New("unexpected expression")
-			}
-			temp2 = ret.At(ret.Len() - 1).(float64)
-			ret.Pop()
-			temp1 = ret.At(ret.Len() - 1).(float64)
-			ret.Pop()
-			if s == "+" {
-				res := temp1 + temp2
-				ret.Push(res)
-			} else if s == "-" {
-				res := temp1 - temp2
-				ret.Push(res)
-			} else if s == "*" {
-				res := temp1 * temp2
-				ret.Push(res)
-			} else if s == "/" {
-				if temp2 == 0 {
-					//panic(errors.New("zero division error"))
-					return 0, errors.New("zero division error")
-				}
-				res := temp1 / temp2
-				ret.Push(res)
-			} else if s == "^" {
-				res := math.Pow(temp1, temp2)
-				ret.Push(res)
-			} else {
-				//panic(errors.New("unexpected operand"))
-				return 0, errors.New("unexpected operand")
-			}
-		} else {
-			res, err := strconv.ParseFloat(s, 64)
-			if err != nil {
-				panic(err)
-			}
-			ret.Push(res)
-		}
-	}
-	return ret.At(0).(float64), nil
 }
