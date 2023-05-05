@@ -47,9 +47,10 @@ Tugas besar ketiga IF2211 - Strategi Algoritma adalah penerapan algoritma String
 
 
 ## Setup
-What are the project requirements/dependencies? Where are they listed? A requirements.txt or a Pipfile.lock file perhaps? Where is it located?
-
-Proceed to describe how to install / setup one's local environment / get started with the project.
+1. make sure port 3001 is not being used or change the port inside `src/frontend/src/ChatRoom.js` and `src/backend/test.go` to the port you're about to use for backend server.
+2. run `initFrontend` or run the script inside it in your computer terminal.
+3. run `runBackend` or run the script inside it in your computer terminal, then press "Yes" to the firewall popup.
+4. run `runFrontend` or run the script inside it in your computer terminal, then go to http://localhost:3000 or your used port for frontend.
 
 
 ## Usage
