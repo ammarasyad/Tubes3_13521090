@@ -160,13 +160,13 @@ func addQuestion(db *sql.DB, question string, answer string, kmpbm bool) string 
 		if len(questions[i]) == len(question) {
 			if kmpbm {
 				if KMP(questions[i], question) {
-					message = "partanyaan " + question + " sudah ada! jawaban diupdate ke " + answer
+					message = "pertanyaan " + question + " sudah ada! jawaban diupdate menjadi " + answer
 					sql_connection.Update_Answer(db, question, answer)
 					return message
 				}
 			} else {
 				if BM(questions[i], question) {
-					message = "partanyaan " + question + " sudah ada! jawaban diupdate ke " + answer
+					message = "pertanyaan " + question + " sudah ada! jawaban diupdate menjadi " + answer
 					sql_connection.Update_Answer(db, question, answer)
 					return message
 				}
