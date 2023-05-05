@@ -107,13 +107,13 @@ func deleteQuestion(db *sql.DB, question string, kmpbm bool) string {
 		if len(questions[i]) == len(question) {
 			if kmpbm {
 				if KMP(questions[i], question) {
-					message = "partanyaan " + question + " telah dihapus"
+					message = "pertanyaan " + question + " telah dihapus"
 					sql_connection.Delete_Question(db, questions[i])
 					return message
 				}
 			} else {
 				if BM(questions[i], question) {
-					message = "partanyaan " + question + " telah dihapus"
+					message = "pertanyaan " + question + " telah dihapus"
 					sql_connection.Delete_Question(db, questions[i])
 					return message
 				}

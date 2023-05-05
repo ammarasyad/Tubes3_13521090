@@ -37,20 +37,6 @@ func Read_All_History(db *sql.DB) ([]string, []string) {
 	return questions, answers
 }
 
-func Read_History(db *sql.DB, question string) string { // Marked for deletion
-	var answer string
-	db.QueryRow("SELECT answer FROM history WHERE question = ?", question).Scan(&answer)
-	return answer
-}
-
-func Delete_History(db *sql.DB, question string) { // Marked for deletion
-	_, err := db.Query("DELETE FROM history WHERE question = ?", question)
-
-	if err != nil {
-		panic(err.Error())
-	}
-}
-
 // CRUD operations for questions table
 
 func Create_Question(db *sql.DB, question string, answer string) {
@@ -82,11 +68,6 @@ func Read_All_Questions(db *sql.DB) []string {
 	}
 
 	return questions
-}
-
-func Update_Question(db *sql.DB, question string, answer string) { // Marked for deletion
-	Delete_Question(db, question)
-	Create_Question(db, question, answer)
 }
 
 func Update_Answer(db *sql.DB, question string, answer string) {
